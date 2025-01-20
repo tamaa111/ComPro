@@ -16,6 +16,12 @@
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
 
+    <!-- SweetAlert2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.0/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+
     <link rel="stylesheet" href="./output.css" />
     <title>Pelatihan Online [&] Pendampingan kerja</title>
   </head>
@@ -573,7 +579,7 @@
     <!-- Footer  -->
     <footer class="bg-yellow-100 text-blue-950 pt-20 pb-10 md:pt-28 relative">
       <!-- newsletter -->
-      <div
+      <!-- <div
         class="container text-white absolute top-0 right-0 left-0 -translate-y-1/2"
       >
         <div class="bg-blue-900 px-10 pt-5 pb-10 space-y-5 rounded-md">
@@ -595,9 +601,54 @@
             </button>
           </div>
         </div>
+      </div> -->
+      <div class="container text-white top-0 right-0 left-0 -translate-y-1/2">
+        <div class="bg-blue-900 px-10 pt-5 pb-10 space-y-5 rounded-md">
+          <h3>
+            <span class="text-yellow-500">Contact Us</span> - Send us a message
+          </h3>
+
+          <form id="contactForm">
+            <div class="flex flex-col gap-1">
+              <input
+                type="text"
+                id="name"
+                placeholder="Your Name"
+                class="w-full px-5 py-3 text-blue-900 rounded-md outline-none"
+              />
+              <input
+                type="email"
+                id="email"
+                placeholder="Your Email Address"
+                class="w-full px-5 py-3 text-blue-900 rounded-md outline-none"
+                required
+              />
+              <input
+                type="text"
+                id="subject"
+                placeholder="Subject"
+                class="w-full px-5 py-3 text-blue-900 rounded-md outline-none"
+              />
+              <textarea
+                id="message"
+                placeholder="Your Message"
+                class="w-full px-5 py-3 text-blue-900 rounded-md outline-none"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              class="flex mt-5 items-center justify-center gap-1 bg-blue-950 px-5 py-3 rounded-md hover:opacity-80 duration-300"
+            >
+              <span>Send Message</span>
+              <i class="ri-send-plane-2-fill"></i>
+            </button>
+          </form>
+        </div>
       </div>
+
       <!-- social icon -->
-      <div class="footer__icon container mt-16 mb-10">
+      <div class="footer__icon container -mt-10 mb-10">
         <div class="border-b border-blue-500 relative">
           <div
             class="absolute top-0 transform -translate-y-1/2 left-0 right-0 max-w-36 mx-auto"
@@ -700,6 +751,9 @@
     <!-- SCROLLREVEAL -->
     <script src="assets/js/scrollreveal.min.js"></script>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.0/dist/sweetalert2.all.min.js"></script>
+
     <!-- mainjs -->
     <script src="main.js"></script>
 
@@ -707,15 +761,15 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!-- Script jQuery untuk FAQ -->
     <script>
+      //untuk FAQ
       $(document).ready(function () {
         $("details").on("click", function () {
           // Tutup semua <details> kecuali yang diklik
           $("details").not(this).removeAttr("open");
         });
       });
-    </script>
 
-    <script>
+      //untuk Recommended Program json
       $(document).ready(function () {
         // Show loader before loading data
         $("#loader").show();
@@ -770,6 +824,39 @@
           }
           return stars;
         }
+      });
+
+      //untuk email
+      $(document).ready(function () {
+        $("#contactForm").on("submit", function (e) {
+          e.preventDefault(); // Mencegah pengiriman form secara langsung
+
+          // Ambil nilai form
+          var name = $("#name").val();
+          var email = $("#email").val();
+          var subject = $("#subject").val();
+          var message = $("#message").val();
+
+          // Validasi form
+          if (name === "" || email === "" || subject === "" || message === "") {
+            // Tampilkan notifikasi error
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Please fill out all fields!",
+            });
+          } else {
+            // Tampilkan notifikasi sukses
+            Swal.fire({
+              icon: "success",
+              title: "Success!",
+              text: "Your message has been sent successfully!",
+            });
+
+            // Reset form jika valid
+            $("#contactForm")[0].reset();
+          }
+        });
       });
     </script>
   </body>
