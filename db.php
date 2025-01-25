@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
 $dbname = 'compro';
-$username = 'root'; // Sesuaikan dengan username database Anda
-$password = ''; // Sesuaikan dengan password database Anda
+$username = 'root'; 
+$password = ''; 
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
