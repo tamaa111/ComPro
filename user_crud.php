@@ -40,11 +40,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(["status" => "success", "message" => "User updated successfully"]);
     }
 } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    // Read Users
-    $sql = "SELECT * FROM users";
-    $stmt = $pdo->query($sql);
+    // Pagination setup
+    $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+    $limit = 10; // Jumlah data per halaman
+    $offset = ($page - 1) * $limit;
+
+    // Fetch total data for pagination
+    $sqlTotal = "SELECT COUNT(*) AS total FROM users";
+    $totalResult = $pdo->query($sqlTotal)->fetch();
+    $total = $totalResult['total'];
+
+    // Fetch paginated data
+    $sql = "SELECT * FROM users LIMIT :limit OFFSET :offset";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($users);
+    // Send data and pagination info as JSON
+    echo json_encode([
+        "users" => $users,
+        "total" => $total,
+        "limit" => $limit,
+        "currentPage" => $page,
+        "totalPages" => ceil($total / $limit)
+    ]);
 }
 ?>

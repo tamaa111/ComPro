@@ -46,6 +46,7 @@
             </thead>
             <tbody></tbody>
         </table>
+        <div id="pagination" class="mt-4 flex justify-center"> </div>
     </div>
 
     <script>
@@ -60,37 +61,65 @@
         });
 
         // Fetch and display users
-        function fetchUsers() {
+        function fetchUsers(page = 1) {
             $.ajax({
                 url: 'user_crud.php',
                 method: 'GET',
+                data: {
+                    page: page
+                },
                 success: function (data) {
-                    let users = JSON.parse(data);
+                    let result = JSON.parse(data);
+                    let users = result.users;
                     let rows = '';
                     users.forEach(function (user) {
                         rows += `
-                            <tr>
-                                <td class="border p-2">${user.id}</td>
-                                <td class="border p-2" id="username-${user.id}">${user.username}</td>
-                                <td class="border p-2" id="email-${user.id}">${user.email}</td>
-                                <td class="border p-2">
-                                    <button class="edit-btn text-yellow-500 p-1" data-id="${user.id}">
-                                        <i class="ri-edit-2-line"></i>
-                                    </button>
-                                    <button class="save-btn text-green-500 p-1 hidden" data-id="${user.id}">
-                                        <i class="ri-save-3-line"></i>
-                                    </button>
-                                    <button class="delete-btn bg-red-500 text-white p-1" data-id="${user.id}">
-                                        <i class="ri-delete-bin-5-line"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
+                    <tr>
+                        <td class="border p-2">${user.id}</td>
+                        <td class="border p-2" id="username-${user.id}">${user.username}</td>
+                        <td class="border p-2" id="email-${user.id}">${user.email}</td>
+                        <td class="border p-2">
+                            <button class="edit-btn text-yellow-500 p-1" data-id="${user.id}">
+                                <i class="ri-edit-2-line"></i>
+                            </button>
+                            <button class="save-btn text-green-500 p-1 hidden" data-id="${user.id}">
+                                <i class="ri-save-3-line"></i>
+                            </button>
+                            <button class="delete-btn bg-red-500 text-white p-1" data-id="${user.id}">
+                                <i class="ri-delete-bin-5-line"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
                     });
+
+                    // Render rows
                     $('#user-table tbody').html(rows);
+
+                    // Render pagination buttons
+                    let pagination = '';
+                    for (let i = 1; i <= result.totalPages; i++) {
+                        pagination += `
+                    <button class="pagination-btn ${result.currentPage === i ? 'bg-blue-500 text-white' : 'bg-gray-300'} px-2 py-1 m-1"
+                        data-page="${i}">${i}</button>
+                `;
+                    }
+                    $('#pagination').html(pagination);
                 }
             });
         }
+
+        // Handle pagination button click
+        $(document).on('click', '.pagination-btn', function () {
+            let page = $(this).data('page');
+            fetchUsers(page);
+        });
+
+        // Initial fetch of users with page 1
+        $(document).ready(function () {
+            fetchUsers(1);
+        });
+
 
         // Create user
         $('#create-user').click(function () {
