@@ -10,6 +10,31 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.0/dist/sweetalert2.all.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css" rel="stylesheet">
+    <style>
+        .loader {
+            border-top-color: #3498db;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+
+        @-webkit-keyframes spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        <blade keyframes|%20spinner%20%7B%0D>0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    </style>
 </head>
 
 <body>
@@ -34,6 +59,14 @@
             </div>
         </div>
 
+        <!-- Loading Animation -->
+        <div id="loading" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-lg">
+                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+                <p class="text-center">Loading</p>
+            </div>
+        </div>
+
         <!-- User List -->
         <table id="user-table" class="table-auto w-full border mt-4">
             <thead>
@@ -49,64 +82,82 @@
         <div id="pagination" class="mt-4 flex justify-center"> </div>
     </div>
 
+   
     <script>
-        // Show Create User Modal
-        $('#show-modal').click(function () {
-            $('#create-user-modal').removeClass('hidden');
-        });
+        // Show loading animation and hide user table
+        function showLoading() {
+            $('#loading').removeClass('hidden');
+            $('#user-table').addClass('hidden'); // Hide the user table
+        }
 
-        // Close Create User Modal
-        $('#close-modal').click(function () {
-            $('#create-user-modal').addClass('hidden');
-        });
+        // Hide loading animation and show user table
+        function hideLoading() {
+            $('#loading').addClass('hidden');
+            $('#user-table').removeClass('hidden'); // Show the user table
+        }
 
         // Fetch and display users
         function fetchUsers(page = 1) {
-            $.ajax({
-                url: 'user_crud.php',
-                method: 'GET',
-                data: {
-                    page: page
-                },
-                success: function (data) {
-                    let result = JSON.parse(data);
-                    let users = result.users;
-                    let rows = '';
-                    users.forEach(function (user) {
-                        rows += `
-                    <tr>
-                        <td class="border p-2">${user.id}</td>
-                        <td class="border p-2" id="username-${user.id}">${user.username}</td>
-                        <td class="border p-2" id="email-${user.id}">${user.email}</td>
-                        <td class="border p-2">
-                            <button class="edit-btn text-yellow-500 p-1" data-id="${user.id}">
-                                <i class="ri-edit-2-line"></i>
-                            </button>
-                            <button class="save-btn text-green-500 p-1 hidden" data-id="${user.id}">
-                                <i class="ri-save-3-line"></i>
-                            </button>
-                            <button class="delete-btn bg-red-500 text-white p-1" data-id="${user.id}">
-                                <i class="ri-delete-bin-5-line"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                    });
+            showLoading(); // Show loading animation
 
-                    // Render rows
-                    $('#user-table tbody').html(rows);
+            // Simulate a delay before fetching data
+            setTimeout(function () {
+                $.ajax({
+                    url: 'user_crud.php',
+                    method: 'GET',
+                    data: {
+                        page: page
+                    },
+                    success: function (data) {
+                        let result = JSON.parse(data);
+                        let users = result.users;
+                        let rows = '';
+                        users.forEach(function (user) {
+                            rows += `
+                        <tr>
+                            <td class="border p-2">${user.id}</td>
+                            <td class="border p-2" id="username-${user.id}">${user.username}</td>
+                            <td class="border p-2" id="email-${user.id}">${user.email}</td>
+                            <td class="border p-2">
+                                <button class="edit-btn text-yellow-500 p-1" data-id="${user.id}">
+                                    <i class="ri-edit-2-line"></i>
+                                </button>
+                                <button class="save-btn text-green-500 p-1 hidden" data-id="${user.id}">
+                                    <i class="ri-save-3-line"></i>
+                                </button>
+                                <button class="delete-btn bg-red-500 text-white p-1" data-id="${user.id}">
+                                    <i class="ri-delete-bin-5-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                        });
 
-                    // Render pagination buttons
-                    let pagination = '';
-                    for (let i = 1; i <= result.totalPages; i++) {
-                        pagination += `
-                    <button class="pagination-btn ${result.currentPage === i ? 'bg-blue-500 text-white' : 'bg-gray-300'} px-2 py-1 m-1"
-                        data-page="${i}">${i}</button>
-                `;
+                        // Render rows
+                        $('#user-table tbody').html(rows);
+
+                        // Render pagination buttons
+                        let pagination = '';
+                        for (let i = 1; i <= result.totalPages; i++) {
+                            pagination += `
+                        <button class="pagination-btn ${result.currentPage === i ? 'bg-blue-500 text-white' : 'bg-gray-300'} px-2 py-1 m-1"
+                            data-page="${i}">${i}</button>
+                    `;
+                        }
+                        $('#pagination').html(pagination);
+
+                        hideLoading(); // Hide loading animation after data is loaded
+                    },
+                    error: function () {
+                        hideLoading(); // Hide loading animation and show error message
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to fetch data. Please try again.',
+                            icon: 'error',
+                        });
                     }
-                    $('#pagination').html(pagination);
-                }
-            });
+                });
+            }, 300); // delay
         }
 
         // Handle pagination button click
@@ -119,7 +170,6 @@
         $(document).ready(function () {
             fetchUsers(1);
         });
-
 
         // Create user
         $('#create-user').click(function () {
@@ -216,7 +266,7 @@
                     // Show success notification
                     Swal.fire({
                         title: 'Update',
-                        text: 'User data has been updated successfully.',
+                        text: 'User  data has been updated successfully.',
                         icon: 'info',
                     });
                 },
@@ -231,33 +281,45 @@
             });
         });
 
-
         // Delete user
         $(document).on('click', '.delete-btn', function () {
             let id = $(this).data('id');
-            $.ajax({
-                url: 'user_crud.php',
-                method: 'POST',
-                data: {
-                    action: 'delete',
-                    id: id
-                },
-                success: function (response) {
-                    let result = JSON.parse(response);
-                    Swal.fire({
-                        title: result.message,
-                        icon: 'error', // Red color for error
-                        background: '#F44336', // Red background
-                        color: '#fff',
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: 'user_crud.php',
+                        method: 'POST',
+                        data: {
+                            action: 'delete',
+                            id: id
+                        },
+                        success: function (response) {
+                            let result = JSON.parse(response);
+                            Swal.fire({
+                                title: result.message,
+                                icon: 'success'
+                            });
+                            fetchUsers();
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Failed to delete user.',
+                                icon: 'error'
+                            });
+                        }
                     });
-                    fetchUsers(); // Refresh user list
                 }
             });
-        });
-
-        // Initial fetch of users
-        $(document).ready(function () {
-            fetchUsers();
         });
     </script>
 </body>
